@@ -1,0 +1,64 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15
+    ports:
+      - "5432:5432"
+    environment:
+      TZ: UTC
+      POSTGRES_USER: meeting_user
+      POSTGRES_PASSWORD: meeting_pass
+      POSTGRES_DB: meeting_db
+    networks:
+      ADSL:
+        ipv4_address: 172.30.0.100
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    environment:
+      TZ: UTC
+      DATABASE_URL: postgresql+psycopg2://meeting_user:meeting_pass@172.30.0.100:5432/meeting_db
+      SECRET_KEY: "Pochita_2025"
+      ALGORITHM: "HS256"
+      ACCESS_TOKEN_EXPIRE_MINUTES: 60
+    networks:
+      ADSL:
+        ipv4_address: 172.30.0.101
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+    networks:
+      ADSL:
+        ipv4_address: 172.30.0.102
+
+  pgadmin:
+    image: dpage/pgadmin4
+    depends_on:
+      - db
+    environment:
+      TZ: UTC
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    networks:
+      ADSL:
+        ipv4_address: 172.30.0.103
+
+volumes:
+  pgdata:
+
+networks:
+  ADSL:
+   external: true

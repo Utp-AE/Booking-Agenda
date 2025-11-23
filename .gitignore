@@ -1,0 +1,29 @@
+# Python / FastAPI
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+.venv/
+venv/
+env/
+
+# Editor
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Environment / secrets
+.env
+.env.*
+
+# Docker
+pgdata/
+*.pid
+
+# OS
+.DS_Store
+Thumbs.db 

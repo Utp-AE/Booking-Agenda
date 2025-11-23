@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Reserva de Salas de Reunión</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --primary: #0056b3;
+      --primary-light: #e6f0ff;
+      --accent: #00b894;
+      --bg: #f4f6fb;
+      --card-bg: #ffffff;
+      --border: #d1d9e6;
+      --text-main: #1f2933;
+      --text-muted: #6b7280;
+      --danger: #e63946;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--primary), #003366);
+      color: #fff;
+      padding: 16px 32px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    header .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    header .logo-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      border: 2px solid #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    header h1 {
+      font-size: 20px;
+      margin: 0;
+    }
+
+    header span.subtitle {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+
+    header .user-badge {
+      font-size: 14px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 24px auto;
+      padding: 0 16px 32px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      gap: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+      border: 1px solid var(--border);
+      padding: 16px 18px;
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card h2 span.tag {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .card p.help {
+      margin: 0 0 12px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      margin-top: 8px;
+      margin-bottom: 2px;
+      color: var(--text-muted);
+    }
+
+    input {
+      width: 100%;
+      padding: 7px 9px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 14px;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 1px var(--primary-light);
+    }
+
+    .btn-row {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 7px 14px;
+      font-size: 13px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.05s ease, box-shadow 0.05s ease, background 0.15s;
+    }
+
+    button:active {
+      transform: scale(0.97);
+      box-shadow: none;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 3px 8px rgba(0, 86, 179, 0.35);
+    }
+
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .status {
+      font-size: 13px;
+      margin-top: 6px;
+      min-height: 18px;
+      color: var(--text-muted);
+    }
+
+    .status.ok {
+      color: var(--accent);
+    }
+
+    .status.error {
+      color: var(--danger);
+    }
+
+    hr.section-divider {
+      border: none;
+      border-top: 1px dashed var(--border);
+      margin: 24px 0 16px;
+    }
+
+    .reservations-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .reservations-header h2 {
+      margin: 0;
+    }
+
+    .reservations-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .reservation-card {
+      border-radius: 10px;
+      background: #f9fafb;
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+    }
+
+    .reservation-title {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .reservation-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .reservation-desc {
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .reservation-actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      border: 1px solid var(--border);
+      background: #f3f4f6;
+    }
+
+    /* Vista semanal */
+    .week-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+      font-size: 12px;
+    }
+
+    @media (max-width: 900px) {
+      .week-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 600px) {
+      .week-grid {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+      }
+    }
+
+    .week-day {
+      border-radius: 10px;
+      background: #f9fafb;
+      border: 1px solid var(--border);
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .week-day-header {
+      font-weight: 600;
+      font-size: 12px;
+      border-bottom: 1px solid #e5e7eb;
+      padding-bottom: 4px;
+      margin-bottom: 4px;
+    }
+
+    .week-slot {
+      font-size: 11px;
+      margin-bottom: 2px;
+    }
+
+    .week-slot span.title {
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="logo-circle">MR</div>
+      <div>
+        <h1>Reserva de Salas de Reunión</h1>
+        <span class="subtitle">Sistema de gestión de reservas tipo universitario / empresarial</span>
+      </div>
+    </div>
+    <div id="user-badge" class="user-badge">
+      No autenticado
+    </div>
+  </header>
+
+  <main>
+    <div class="grid">
+      <!-- COLUMNA 1: Login -->
+      <section class="card">
+        <h2>Acceso de usuarios <span class="tag">Login</span></h2>
+        <p class="help">
+          Inicia sesión con tu correo institucional para gestionar tus reservas.
+          Si aún no tienes cuenta, puedes registrarte.
+        </p>
+
+        <label for="email">Correo institucional</label>
+        <input id="email" type="email" placeholder="nombre.apellido@universidad.edu" />
+
+        <label for="password">Contraseña</label>
+        <input id="password" type="password" placeholder="Mínimo 6 caracteres" />
+
+        <div class="btn-row">
+          <button class="btn-primary" onclick="login()">
+            🔐 Iniciar sesión
+          </button>
+          <button class="btn-secondary" onclick="goToRegister()">
+            ➕ Registrarse
+          </button>
+        </div>
+
+        <p id="login-status" class="status"></p>
+      </section>
+
+      <!-- COLUMNA 2: Crear / Actualizar reserva -->
+      <section class="card">
+        <h2>Nueva reserva <span class="tag">Sala</span></h2>
+        <p class="help">
+          Selecciona la franja horaria deseada. El sistema evitará choques de horario con otras reservas.
+        </p>
+
+        <label for="title">Título de la reunión</label>
+        <input id="title" type="text" placeholder="Reunión de proyecto, defensa de tesis, comité, etc." />
+
+        <label for="description">Descripción</label>
+        <input id="description" type="text" placeholder="Objetivo de la reunión, sala solicitada, etc." />
+
+        <label for="start">Inicio (hora local)</label>
+        <input id="start" type="datetime-local" />
+
+        <label for="end">Fin (hora local)</label>
+        <input id="end" type="datetime-local" />
+
+        <label for="resId">ID de reserva (solo para editar)</label>
+        <input id="resId" type="number" placeholder="Deja vacío para crear una nueva" />
+
+        <div class="btn-row">
+          <button class="btn-primary" onclick="createReservation()">
+            ✅ Crear reserva
+          </button>
+          <button class="btn-secondary" onclick="updateReservation()">
+            ✏️ Actualizar reserva
+          </button>
+        </div>
+
+        <p id="reservation-status" class="status"></p>
+      </section>
+    </div>
+
+    <hr class="section-divider" />
+
+    <!-- LISTADO DE RESERVAS -->
+    <section class="card">
+      <div class="reservations-header">
+        <h2>Ver reservas</h2>
+        <div class="btn-row">
+          <button class="btn-secondary" onclick="loadMyReservations()">Mis reservas</button>
+          <button class="btn-secondary" onclick="loadAllReservations()">Todas las reservas</button>
+        </div>
+      </div>
+      <p class="help">
+        Visualiza las reservas activas. Como administrador podrás ver todas las reservas del sistema;
+        como usuario estándar, solo las tuyas.
+      </p>
+
+      <div id="reservations" class="reservations-list"></div>
+    </section>
+
+    <hr class="section-divider" />
+
+    <!-- PREVIEW SEMANAL -->
+    <section class="card">
+      <h2>Resumen semanal de reservas <span class="tag">Semana actual</span></h2>
+      <p class="help">
+        Vista rápida de las franjas ya reservadas esta semana por día y horario
+        para reducir la probabilidad de conflictos al agendar.
+      </p>
+      <div id="week-preview"></div>
+    </section>
+  </main>
+
+  <script>
+    const API_BASE = "http://localhost:8000";
+    let token = null;
+    let currentUser = null;
+    let lastReservations = []; // último listado cargado
+
+    function setStatus(id, msg, type = "") {
+      const el = document.getElementById(id);
+      el.textContent = msg;
+      el.className = "status " + type;
+    }
+
+    function updateUserBadge() {
+      const badge = document.getElementById("user-badge");
+      if (!currentUser) {
+        badge.textContent = "No autenticado";
+        return;
+      }
+      const rol = currentUser.is_admin ? "Administrador" : "Usuario";
+      badge.textContent = `${currentUser.full_name || currentUser.email} · ${rol}`;
+    }
+
+    function goToRegister() {
+      window.location.href = "/register.html";
+    }
+
+    // ====== HEADERS CON TOKEN ======
+    function authHeaders(extra = {}) {
+      if (!token) {
+        throw new Error("No hay token; inicia sesión primero.");
+      }
+      return {
+        Authorization: `Bearer ${token}`,
+        ...extra,
+      };
+    }
+
+    // ====== LOGIN ======
+    async function login() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      const body = new URLSearchParams();
+      body.append("username", email);
+      body.append("password", password);
+
+      const res = await fetch(`${API_BASE}/token`, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body,
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        console.error("Error login:", data);
+        setStatus("login-status", "Error de login. Verifique correo y contraseña.", "error");
+        return;
+      }
+
+      token = data.access_token;
+      setStatus("login-status", "Login exitoso.", "ok");
+      console.log("Token obtenido:", token);
+
+      await fetchCurrentUser();
+      // cargar mis reservas por defecto al iniciar sesión
+      loadMyReservations();
+    }
+
+    async function fetchCurrentUser() {
+      try {
+        const res = await fetch(`${API_BASE}/me`, {
+          headers: authHeaders({ "Accept": "application/json" }),
+        });
+        if (!res.ok) {
+          console.error("Error /me:", await res.text());
+          return;
+        }
+        currentUser = await res.json();
+        updateUserBadge();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // ====== CREAR RESERVA ======
+    async function createReservation() {
+      try {
+        if (!token) return alert("Primero inicia sesión.");
+
+        const title = document.getElementById("title").value;
+        const description = document.getElementById("description").value;
+        const start = document.getElementById("start").value;
+        const end = document.getElementById("end").value;
+
+        const payload = {
+          title,
+          description,
+          start_time: new Date(start).toISOString(),
+          end_time: new Date(end).toISOString(),
+        };
+
+        const res = await fetch(`${API_BASE}/reservations`, {
+          method: "POST",
+          headers: authHeaders({ "Content-Type": "application/json" }),
+          body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          console.error("Error crear reserva:", data);
+          setStatus("reservation-status", data.detail || "Error al crear la reserva.", "error");
+        } else {
+          setStatus("reservation-status", "Reserva creada con ID " + data.id, "ok");
+          loadMyReservations();
+        }
+      } catch (err) {
+        console.error(err);
+        setStatus("reservation-status", "Error de autenticación. Vuelve a iniciar sesión.", "error");
+      }
+    }
+
+    // ====== ACTUALIZAR RESERVA ======
+    async function updateReservation() {
+      try {
+        if (!token) return alert("Primero inicia sesión.");
+
+        const resId = document.getElementById("resId").value;
+        if (!resId) return alert("Indica el ID de la reserva a actualizar.");
+
+        const title = document.getElementById("title").value;
+        const description = document.getElementById("description").value;
+        const start = document.getElementById("start").value;
+        const end = document.getElementById("end").value;
+
+        const payload = {
+          title,
+          description,
+          start_time: new Date(start).toISOString(),
+          end_time: new Date(end).toISOString(),
+        };
+
+        const res = await fetch(`${API_BASE}/reservations/${resId}`, {
+          method: "PUT",
+          headers: authHeaders({ "Content-Type": "application/json" }),
+          body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          console.error("Error actualizar:", data);
+          setStatus("reservation-status", data.detail || "Error al actualizar la reserva.", "error");
+        } else {
+          setStatus("reservation-status", "Reserva actualizada correctamente.", "ok");
+          loadMyReservations();
+        }
+      } catch (err) {
+        console.error(err);
+        setStatus("reservation-status", "Error de autenticación. Vuelve a iniciar sesión.", "error");
+      }
+    }
+
+    // ====== LISTAR RESERVAS ======
+    async function loadReservations(mine) {
+      try {
+        if (!token) return alert("Primero inicia sesión.");
+
+        const res = await fetch(`${API_BASE}/reservations?mine=${mine}`, {
+          headers: authHeaders({ "Accept": "application/json" }),
+        });
+
+        const container = document.getElementById("reservations");
+        const data = await res.json();
+        container.innerHTML = "";
+
+        if (!res.ok) {
+          console.error("Error listar reservas:", data);
+          alert("Error: " + (data.detail || "Desconocido"));
+          return;
+        }
+
+        lastReservations = data;         // guardamos para el preview semanal
+        renderWeekPreview(data);         // actualizamos vista semanal
+
+        if (!Array.isArray(data) || data.length === 0) {
+          container.innerHTML = "<p class='help'>No hay reservas para mostrar.</p>";
+          return;
+        }
+
+        data.forEach((r) => {
+          const ownerName =
+            (r.owner && (r.owner.full_name || r.owner.email)) || r.owner_id;
+
+          const startStr = new Date(r.start_time).toLocaleString();
+          const endStr = new Date(r.end_time).toLocaleString();
+
+          const div = document.createElement("div");
+          div.className = "reservation-card";
+          div.innerHTML = `
+            <div class="reservation-title">
+              ${r.title} <span class="pill">ID ${r.id}</span>
+            </div>
+            <div class="reservation-meta">
+              Dueño: <strong>${ownerName}</strong><br/>
+              Horario: ${startStr} &mdash; ${endStr}
+            </div>
+            <div class="reservation-desc">
+              ${r.description || "<em>Sin descripción</em>"}
+            </div>
+            <div class="reservation-actions">
+              <button class="btn-danger" onclick="deleteReservation(${r.id})">Eliminar</button>
+            </div>
+          `;
+          container.appendChild(div);
+        });
+      } catch (err) {
+        console.error(err);
+        alert("Error de autenticación. Vuelve a iniciar sesión.");
+      }
+    }
+
+    async function loadMyReservations() {
+      await loadReservations(true);
+    }
+
+    async function loadAllReservations() {
+      await loadReservations(false);
+    }
+
+    // ====== BORRAR RESERVA ======
+    async function deleteReservation(id) {
+      try {
+        if (!token) return alert("Primero inicia sesión.");
+
+        const res = await fetch(`${API_BASE}/reservations/${id}`, {
+          method: "DELETE",
+          headers: authHeaders(),
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          console.error("Error borrar:", data);
+          alert("Error: " + (data.detail || "Desconocido"));
+        } else {
+          alert(data.detail || "Reserva eliminada.");
+          loadMyReservations();
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Error de autenticación. Vuelve a iniciar sesión.");
+      }
+    }
+
+    // ====== PREVIEW SEMANAL ======
+    function renderWeekPreview(reservations) {
+      const container = document.getElementById("week-preview");
+      container.innerHTML = "";
+
+      // Definir semana actual (lunes a domingo)
+      const now = new Date();
+      const day = now.getDay(); // 0=domingo, 1=lunes, ..., 6=sábado
+      const diffToMonday = day === 0 ? -6 : 1 - day;
+      const monday = new Date(now);
+      monday.setHours(0, 0, 0, 0);
+      monday.setDate(now.getDate() + diffToMonday);
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 6);
+      sunday.setHours(23, 59, 59, 999);
+
+      const dayNames = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+      const days = [];
+
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        days.push({ date: d, reservations: [] });
+      }
+
+      (reservations || []).forEach((r) => {
+        const start = new Date(r.start_time);
+        const end = new Date(r.end_time);
+        if (start >= monday && start <= sunday) {
+          // índice 0 = lunes ... 6 = domingo
+          const jsDay = start.getDay(); // 0=domingo
+          const index = jsDay === 0 ? 6 : jsDay - 1;
+          days[index].reservations.push({ res: r, start, end });
+        }
+      });
+
+      const weekGrid = document.createElement("div");
+      weekGrid.className = "week-grid";
+
+      let hasAny = false;
+
+      days.forEach((d, idx) => {
+        const card = document.createElement("div");
+        card.className = "week-day";
+
+        const dayLabel = `${dayNames[idx]} ${d.date.getDate()}/${d.date.getMonth() + 1}`;
+        const header = document.createElement("div");
+        header.className = "week-day-header";
+        header.textContent = dayLabel;
+        card.appendChild(header);
+
+        if (d.reservations.length === 0) {
+          const p = document.createElement("p");
+          p.className = "help";
+          p.textContent = "Sin reservas";
+          card.appendChild(p);
+        } else {
+          hasAny = true;
+          d.reservations
+            .sort((a, b) => a.start - b.start)
+            .forEach(({ res, start, end }) => {
+              const ownerName =
+                (res.owner && (res.owner.full_name || res.owner.email)) || res.owner_id;
+              const span = document.createElement("div");
+              span.className = "week-slot";
+              span.innerHTML = `
+                <span>${start.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                - ${end.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+                · <span class="title">${res.title}</span>
+                <br/><span>${ownerName}</span>
+              `;
+              card.appendChild(span);
+            });
+        }
+
+        weekGrid.appendChild(card);
+      });
+
+      if (!hasAny) {
+        container.innerHTML = "<p class='help'>No hay reservas para esta semana.</p>";
+      } else {
+        container.appendChild(weekGrid);
+      }
+    }
+  </script>
+</body>
+</html>
